@@ -1,0 +1,5 @@
+.vscode/
+.vscode/tasks.json
+kc_house_data.csv
+Tests/Prediction.Model
+Tests/HousePricePrediction_LoadModel.Test.ps1
