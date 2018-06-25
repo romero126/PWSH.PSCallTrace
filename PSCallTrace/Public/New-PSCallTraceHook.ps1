@@ -17,8 +17,8 @@ function New-PSCallTraceHook {
     param(
         [Parameter(Position = 0, Mandatory)]
         [String]$FunctionName,
-        [Parameter(Mandatory)]
-        [String]$Module
+        [Parameter()]
+        [String]$Module = 'Function:'
     )
     $NewFunction = {
         [CmdletBinding()]
@@ -42,9 +42,19 @@ function New-PSCallTraceHook {
             $steppablePipeline.End()
         }
     }
-    $NewFunction = [ScriptBlock]::Create(
-        ($NewFunction.ToString() -Replace "!Module", $Module -Replace "!FunctionName", $FunctionName)
-    )
+    if ($Module = 'Function:') {
+        $WrappedFunctionName = "${FunctionName}_WrappedHookCmd"
+        Rename-Item -Path "Function:\$FunctionName" -NewName $WrappedFunctionName
+        
+        $NewFunction = [ScriptBlock]::Create(
+            ($NewFunction.ToString() -Replace "!Module", $Module -Replace "!FunctionName", $WrappedFunctionName)
+        )
+    }
+    else {
+        $NewFunction = [ScriptBlock]::Create(
+            ($NewFunction.ToString() -Replace "!Module", $Module -Replace "!FunctionName", $FunctionName)
+        )
+    }
     if (Test-Path Function:$FunctionName) {
         Set-Item -Path Function:Global:$FunctionName -Value $NewFunction | out-null
     } else {
