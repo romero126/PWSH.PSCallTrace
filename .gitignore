@@ -3,3 +3,4 @@
 kc_house_data.csv
 Tests/Prediction.Model
 Tests/HousePricePrediction_LoadModel.Test.ps1
+Tests/.Ignore.*
