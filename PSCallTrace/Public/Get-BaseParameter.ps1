@@ -2,7 +2,7 @@ using namespace System.Management.Automation
 using namespace System.Management.Automation.Internal
 
 
-function Get-BaseParameters {
+function Get-BaseParameter {
     <#
         .Synopsis
         Get-BaseParameters is used in 'Magic'
@@ -12,7 +12,7 @@ function Get-BaseParameters {
         . {
             function MyFunction 
                 dynamicparam {
-                    Get-BaseParameters "Microsoft.PowerShell.Utility\Write-Host"
+                    Get-BaseParameter "Microsoft.PowerShell.Utility\Write-Host"
                 }
             }
         }

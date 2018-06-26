@@ -38,7 +38,7 @@
                                 <PropertyName>Ticks</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>FunctionName</PropertyName>
+                                <PropertyName>Name</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>Message</PropertyName>
