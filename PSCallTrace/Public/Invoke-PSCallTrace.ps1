@@ -33,46 +33,55 @@ function Invoke-PSCallTrace {
         [PSCustomObject]$Object,
         [switch]$Begin,
         [switch]$Process,
-        [switch]$End
+        [switch]$End,
+        [object]$Hook,
+        [AllowNull()]
+        [object[]]$Arguments
     )
+    $Command = $null
+    $Result = $null
+    if ($Hook) {
+        $Command = "`$Hook.Invoke(`$Arguments)"
+        if ($Arguments -eq $null) {
+            $Command = "`$Hook.Invoke()"
+        }
+    }
+    
+    if ($Command -ne $null) {
+        
+        try {
+            $Result = Invoke-Expression -Command $Command `
+                -InformationVariable +ReportInformation `
+                -WarningVariable +ReportWarning `
+                -ErrorVariable +ReportError `
+                -Debug                
+        } catch {
+            #New-PSCallTraceMessage -MessageType Error -Message $_.Exception.InnerException.ErrorRecord
+        }
+        if ($ReportWarning) {
+            write-host "Warning"
+            New-PSCallTraceMessage -MessageType Warning -Message $ReportWarning
+        }
+        if ($ReportInformation) {
+            New-PSCallTraceMessage -MessageType Information -Message $ReportInformation
+        }
+        if ($ReportError) {
+            New-PSCallTraceMessage -MessageType Error -Message $ReportError.Exception.InnerException.ErrorRecord
+        }
+    }
+
     if ($Begin) {
-        $CallStack = Get-PSCallStack
-        $result = [PSCustomObject]@{
-            PSTypeName     = "PowerShell.PSCallTrace"
-            Timestamp      = [datetime]::Now
-            EndTime        = $null
-            Measure        = $null
-            Ticks          = $null
-            Name           = $CallStack[$Level].Command
-            Script         = $CallStack[$Level+1].Command
-            ModuleName     = $CallStack[$Level+1].InvocationInfo.MyCommand.ModuleName
-            File           = $CallStack[$Level+1].Position.File
-            Line           = $CallStack[$Level+1].Position.StartLineNumber
-            Message        = ($Callstack[$Level].InvocationInfo.BoundParameters.Values.GetEnumerator() | % { $_ }) -join " "
-            Parameters     = $(
-                                ($CallStack[$Level].InvocationInfo.BoundParameters.GetEnumerator() | % { $_ }),
-                                ($CallStack[$Level].InvocationInfo.UnboundArguments.GetEnumerator() | % { $_ })
-                            )
-            PipelineArgs   = ($Callstack[$Level+1].Position.Text -Replace $Callstack[$Level].InvocationInfo.InvocationName, "").TrimStart(" ")
-            InvocationInfo = $CallStack[$Level].InvocationInfo
-            CallStack      = $CallStack
+        $Result = new-object PSCustomObject @{
+            Message = New-PSCallTraceMessage -MessageType Begin -Message ""
+            Result = $Result
         }
-        <#
-        $DisplayProperties = @('TimeStamp', 'Ticks', 'FunctionName', 'Message', 'Line', 'Script', 'ModuleName', 'File')
-        $DefaultDisplay = New-Object System.Management.Automation.PSPropertySet("DefaultDisplayPropertySet", [string[]]$DisplayProperties)
-        $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($DefaultDisplay)
-        $Result | Add-Member MemberSet PSStandardMembers $PSStandardMembers
-        #>
-        $Host.PSCallTrace.Add($result) | out-null
-        return $result
+
     }
-    if ($Process) { return }
+    if ($Process) {
+        #New-PSCallTraceMessage -MessageType Process -Message $CallStack -Level ($Level)
+    }
     if ($End) {
-        if ($Object) {
-            $Object.EndTime = [datetime]::Now
-            $Object.Measure = New-TimeSpan -Start $Object.Timestamp -End $Object.EndTime
-            $Object.Ticks   = $Object.Measure.Ticks
-        }
-        return
+        New-PSCallTraceMessage -MessageType End -Message $Object
     }
+    $Result
 }

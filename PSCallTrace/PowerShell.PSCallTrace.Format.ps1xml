@@ -9,10 +9,12 @@
             <TableControl>
                 <TableHeaders>
                     <TableColumnHeader>
-                        <Width>20</Width>
+                        <Width>21</Width>
                     </TableColumnHeader>
                     <TableColumnHeader>
-                        <Width>10</Width>
+                        <Width>17</Width>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
                     </TableColumnHeader>
                     <TableColumnHeader>
                     </TableColumnHeader>
@@ -25,17 +27,18 @@
                     </TableColumnHeader>
                     <TableColumnHeader>
                     </TableColumnHeader>
-                    <TableColumnHeader>
-                    </TableColumnHeader>
                 </TableHeaders>
                 <TableRowEntries>
                     <TableRowEntry>
                         <TableColumnItems>
                             <TableColumnItem>
-                                <PropertyName>TimeStamp</PropertyName>
+                                <PropertyName>StartTime</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
-                                <PropertyName>Ticks</PropertyName>
+                                <PropertyName>ExecutionTime</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <PropertyName>Type</PropertyName>
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>Name</PropertyName>
@@ -51,9 +54,6 @@
                             </TableColumnItem>
                             <TableColumnItem>
                                 <PropertyName>ModuleName</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>File</PropertyName>
                             </TableColumnItem>
                         </TableColumnItems>
                     </TableRowEntry>

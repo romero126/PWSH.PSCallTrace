@@ -30,9 +30,11 @@ function New-PSCallTraceHook {
     }
     $MetaData = New-Object System.Management.Automation.CommandMetaData (Get-Command "$Module\$Name")
     $HookedFunction = [System.Management.Automation.ProxyCommand]::Create($MetaData)
-    $HookedFunction = $HookedFunction -Replace "steppablePipeline.Begin", "PSStackData = Invoke-PSCallTrace -Begin; `$steppablePipeline.Begin"
-    $HookedFunction = $HookedFunction -Replace "steppablePipeline.Process", "PSStackData = Invoke-PSCallTrace -Process; `$steppablePipeline.Process"
-    $HookedFunction = $HookedFunction -Replace "steppablePipeline.End", "PSStackData = Invoke-PSCallTrace -End; `$steppablePipeline.End"
+
+    $HookedFunction = $HookedFunction.Replace("`$steppablePipeline.Begin(`$myInvocation.ExpectingInput, `$ExecutionContext)", "`$Result = Invoke-PSCallTrace -Begin -Hook `$steppablePipeline.Begin -Arguments (`$myInvocation.ExpectingInput, `$ExecutionContext); `$PSCallTrace = `$Result.Message; `$Result.Result")
+    $HookedFunction = $HookedFunction.Replace("`$steppablePipeline.Begin(`$PSCmdlet)", "`$Result = Invoke-PSCallTrace -Begin -Hook `$steppablePipeline.Begin -Arguments `$PSCmdlet; `$PSCallTrace = `$Result.Message; `$Result.Result")
+    $HookedFunction = $HookedFunction.Replace("`$steppablePipeline.Process(`$_)", "Invoke-PSCallTrace -Object `$PSCallTrace -Process -Hook `$steppablePipeline.Process -Arguments `$_")
+    $HookedFunction = $HookedFunction.Replace("`$steppablePipeline.End()", "Invoke-PSCallTrace -Object `$PSCallTrace -End -Hook `$steppablePipeline.End")
 
     if (Test-Path Function:$Name) {
         Set-Item -Path Function:Global:$Name -Value $HookedFunction | out-null
